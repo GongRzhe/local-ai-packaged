@@ -8,6 +8,21 @@ volumes:
   caddy-config:
   valkey-data:  
 
+x-n8n-custom: &service-n8n-custom
+  build:
+    context: .
+    dockerfile: Dockerfile.n8n
+  environment:
+    - DB_TYPE=postgresdb
+    - DB_POSTGRESDB_HOST=db
+    - DB_POSTGRESDB_USER=postgres
+    - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+    - DB_POSTGRESDB_DATABASE=postgres
+    - N8N_DIAGNOSTICS_ENABLED=false
+    - N8N_PERSONALIZATION_ENABLED=false
+    - N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true
+    - N8N_SECURE_COOKIE=false
+
 x-n8n: &service-n8n
   image: n8nio/n8n:latest
   environment:
@@ -18,7 +33,7 @@ x-n8n: &service-n8n
     - DB_POSTGRESDB_DATABASE=postgres
     - N8N_DIAGNOSTICS_ENABLED=false
     - N8N_PERSONALIZATION_ENABLED=false
-    - N8N_ENCRYPTION_KEY
+    - N8N_ENCRYPTION_KEY=false
     - N8N_USER_MANAGEMENT_JWT_SECRET
 
 x-ollama: &service-ollama
@@ -64,14 +79,14 @@ services:
     restart: unless-stopped
     container_name: open-webui
     ports:
-      - "3000:8080"
+      - "30000:8080"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
       - open-webui:/app/backend/data
 
   n8n-import:
-    <<: *service-n8n
+    <<: *service-n8n-custom
     container_name: n8n-import
     entrypoint: /bin/sh
     command:
@@ -81,11 +96,12 @@ services:
       - ./n8n/backup:/backup  
 
   n8n:
-    <<: *service-n8n
+    <<: *service-n8n-custom
     container_name: n8n
     restart: unless-stopped
     ports:
       - 5678:5678
+      - 3000:3000
     volumes:
       - n8n_storage:/home/node/.n8n
       - ./n8n/backup:/backup
