@@ -12,8 +12,14 @@
 
 # Open WebUI
 {$WEBUI_HOSTNAME} {
-    reverse_proxy localhost:3000
+    reverse_proxy localhost:30000
 }
+
+
+# Gmail Auth
+# {$GMAIL_HOSTNAME} {
+#     reverse_proxy localhost:3000
+# }
 
 # Flowise
 {$FLOWISE_HOSTNAME} {
