@@ -4,9 +4,8 @@
 quickly bootstraps a fully featured Local AI and Low Code development
 environment including Ollama for your local LLMs, Open WebUI for an interface to chat with your N8N agents, and Supabase for your database, vector store, and authentication. 
 
-This is Cole's version with a couple of improvements and the addition of Supabase, Open WebUI, Flowise, SearXNG, and Caddy!
-Postgres was also removed since Supabase runs Postgres under the hood.
-Also, the local RAG AI Agent workflow from the video will be automatically in your 
+This is Cole's version with a couple of improvements and the addition of Supabase, Open WebUI, Flowise, Langfuse, SearXNG, and Caddy!
+Also, the local RAG AI Agent workflows from the video will be automatically in your 
 n8n instance if you use this setup instead of the base one provided by n8n!
 
 ## Important Links
@@ -42,14 +41,16 @@ privately interact with your local models and N8N agents
 ✅ [**Flowise**](https://flowiseai.com/) - No/low code AI agent
 builder that pairs very well with n8n
 
-✅ [**Qdrant**](https://qdrant.tech/) - Open-source, high performance vector
+✅ [**Qdrant**](https://qdrant.tech/) - Open source, high performance vector
 store with an comprehensive API. Even though you can use Supabase for RAG, this was
 kept unlike Postgres since it's faster than Supabase so sometimes is the better option.
 
-✅ [**SearXNG**](https://searxng.org/) - Open-source, free internet metasearch engine which aggregates 
+✅ [**SearXNG**](https://searxng.org/) - Open source, free internet metasearch engine which aggregates 
 results from up to 229 search services. Users are neither tracked nor profiled, hence the fit with the local AI package.
 
 ✅ [**Caddy**](https://caddyserver.com/) - Managed HTTPS/TLS for custom domains
+
+✅ [**Langfuse**](https://langfuse.com/) - Open source LLM engineering platform for agent observability
 
 ## Prerequisites
 
@@ -88,6 +89,16 @@ Before running the services, you need to set up your environment variables for S
    DASHBOARD_USERNAME=
    DASHBOARD_PASSWORD=
    POOLER_TENANT_ID=
+
+   ############
+   # Langfuse credentials
+   ############
+
+   CLICKHOUSE_PASSWORD=
+   MINIO_ROOT_PASSWORD=
+   LANGFUSE_SALT=
+   NEXTAUTH_SECRET=
+   ENCRYPTION_KEY=  
    ```
 
 > [!IMPORTANT]
@@ -180,7 +191,8 @@ Before running the above commands to pull the repo and install everything:
 
 1. Run the commands as root to open up the necessary ports:
    - ufw enable
-   - ufw allow 8000 && ufw allow 3001 && ufw allow 3000 && ufw allow 5678 && ufw allow 80 && ufw allow 443
+   - ufw allow 8000 && ufw allow 3000 && ufw allow 5678 && ufw allow 3002 && ufw allow 80 && ufw allow 443
+   - ufw allow 3001 (if you want to expose Flowise, you will have to set up the [environment variables](https://docs.flowiseai.com/configuration/environment-variables) to enable authentication)
    - ufw allow 8080 (if you want to expose SearXNG)
    - ufw allow 11434 (if you want to expose Ollama)
    - ufw reload
@@ -254,10 +266,10 @@ To update all containers to their latest versions (n8n, Open WebUI, etc.), run t
 
 ```bash
 # Stop all services
-docker compose -p localai -f docker-compose.yml -f supabase/docker/docker-compose.yml down
+docker compose -p localai --profile <your-profile> -f docker-compose.yml -f supabase/docker/docker-compose.yml down
 
 # Pull latest versions of all containers
-docker compose -p localai -f docker-compose.yml -f supabase/docker/docker-compose.yml pull
+docker compose -p localai --profile <your-profile> -f docker-compose.yml -f supabase/docker/docker-compose.yml pull
 
 # Start services again with your desired profile
 python start_services.py --profile <your-profile>
