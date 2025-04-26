@@ -39,6 +39,7 @@ x-n8n: &service-n8n
     - N8N_PERSONALIZATION_ENABLED=false
     - N8N_ENCRYPTION_KEY=false
     - N8N_USER_MANAGEMENT_JWT_SECRET
+    - WEBHOOK_URL=${N8N_HOSTNAME:+https://}${N8N_HOSTNAME:-http://localhost:5678}
 
 x-ollama: &service-ollama
   image: ollama/ollama:latest
@@ -141,6 +142,7 @@ services:
       - OLLAMA_HOSTNAME=${OLLAMA_HOSTNAME:-":8004"}
       - SUPABASE_HOSTNAME=${SUPABASE_HOSTNAME:-":8005"}
       - SEARXNG_HOSTNAME=${SEARXNG_HOSTNAME:-":8006"}
+      - LANGFUSE_HOSTNAME=${LANGFUSE_HOSTNAME:-":8006"}
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL:-internal}
     cap_drop:
       - ALL
